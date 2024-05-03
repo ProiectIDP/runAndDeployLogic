@@ -10,6 +10,24 @@ services:
       - ./auth_logic:/app
     environment:
       - DATABASE_URL=postgresql://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
+  app:
+    build: ./BusinessLogic
+    command: sh -c "uvicorn main:app --reload --port=8080 --host=0.0.0.0"
+    ports:
+      - 8080:8080
+    volumes:
+      - ./BusinessLogic:/app
+    environment:
+      - DATABASE_URL=postgresql://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
   db:
     image: postgres:15-alpine
     volumes:
