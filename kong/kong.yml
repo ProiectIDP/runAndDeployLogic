@@ -1,0 +1,116 @@
+_format_version: "2.1"
+
+services:
+  - name: web
+    url: http://web:8000/login
+    routes:
+      - name: web-login
+        paths:
+          - /login
+
+  - name: web2
+    url: http://web:8000/static/style.css
+    routes:
+      - name: web-css
+        paths:
+          - /static/style.css
+
+  - name: web3
+    url: http://web:8000/token
+    routes:
+      - name: web-token
+        paths:
+          - /token
+
+  - name: web4
+    url: http://web:8000/registerpage
+    routes:
+      - name: web-register-page
+        paths:
+          - /registerpage
+
+  - name: web5
+    url: http://web:8000/register
+    routes:
+      - name: web-register
+        paths:
+          - /register
+
+  - name: web6
+    url: http://web:8000/users/me
+    routes:
+      - name: web-me
+        paths:
+          - /users/me
+
+  - name: app1
+    url: http://app:8080/getinbox
+    routes:
+      - name: app-getinbox
+        paths:
+          - /getinbox
+
+  - name: app2
+    url: http://app:8080/getunreademailsnumber
+    routes:
+      - name: app-getunreademailsnumber
+        paths:
+          - /getunreademailsnumber
+
+  - name: app3
+    url: http://app:8080/getsent
+    routes:
+      - name: app-getsent
+        paths:
+          - /getsent
+
+  - name: app4
+    url: http://app:8080/getstared
+    routes:
+      - name: app-getstared
+        paths:
+          - /getstared
+
+  - name: app5
+    url: http://app:8080/starunstar
+    routes:
+      - name: app-starunstar
+        paths:
+          - /starunstar
+
+  - name: app6
+    url: http://app:8080/reademail
+    routes:
+      - name: app-reademail
+        paths:
+          - /reademail
+
+  - name: app7
+    url: http://app:8080/sendemail
+    routes:
+      - name: app-sendemail
+        paths:
+          - /sendemail
+
+  - name: app8
+    url: http://app:8080/inbox
+    routes:
+      - name: app-inbox
+        paths:
+          - /inbox
+
+  - name: app9
+    url: http://app:8080/sent
+    routes:
+      - name: app-sent
+        paths:
+          - /sent
+
+  - name: app10
+    url: http://app:8080/stared
+    routes:
+      - name: app-stared
+        paths:
+          - /stared
+
+

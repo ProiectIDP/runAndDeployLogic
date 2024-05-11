@@ -10,6 +10,9 @@ services:
       - ./auth_logic:/app
     environment:
       - DATABASE_URL=postgresql://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
+    networks:
+      - internal
+      - dbbridge
   app:
     build: ./BusinessLogic
     command: sh -c "uvicorn main:app --reload --port=8080 --host=0.0.0.0"
@@ -19,6 +22,9 @@ services:
       - ./BusinessLogic:/app
     environment:
       - DATABASE_URL=postgresql://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
+    networks:
+      - internal
+      - dbbridge
   pgadmin:
     image: dpage/pgadmin4
     environment:
@@ -38,6 +44,8 @@ services:
       - POSTGRES_USER=fastapi_traefik
       - POSTGRES_PASSWORD=fastapi_traefik
       - POSTGRES_DB=fastapi_traefik
+    networks:
+      - dbbridge
   portainer:
     image: portainer/portainer-ce:latest
     ports:
@@ -46,7 +54,33 @@ services:
       - data:/data
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
+  kong:
+    image: kong:latest
+    volumes:
+      - ./kong:/usr/local/kong/declarative # injectarea fișierului de configurare la calea specificată
+    environment:
+      KONG_DATABASE: 'off' # obligatoriu, dacă se vrea modul DB-less
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml # trebuie specificat unde anume se va găsi fișierul de configurare
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+    ports:
+      - 8001:8001 # expunerea porturilor
+      - 80:8000
+      - 8443:8443
+    deploy:
+      placement:
+        constraints: [node.role == manager] # constrângerea de rulare doar pe manager, pentru a nu exista conflict la nivel de volume
+    networks:
+      - internal
 
+networks:
+  internal:
+    driver: bridge
+  dbbridge:
+    driver: bridge
 volumes:
   postgres_data:
   data:
