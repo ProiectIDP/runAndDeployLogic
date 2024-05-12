@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Users\drago\AppData\Local\Microsoft\WinGet\Packages\Kubernetes.kompose_Microsoft.Winget.Source_8wekyb3d8bbwe\kompose.exe convert
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: kong
+  name: kong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: kong
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Users\drago\AppData\Local\Microsoft\WinGet\Packages\Kubernetes.kompose_Microsoft.Winget.Source_8wekyb3d8bbwe\kompose.exe convert
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/proiect-internal: "true"
+        io.kompose.service: kong
+    spec:
+      initContainers:
+        - name: move-files
+          image: busybox:latest
+          command: ["/bin/sh", "-c", "mv /usr/local/kong/declarative/runAndDeployLogic/kong/* /usr/local/kong/declarative/"]
+          volumeMounts:
+            - mountPath: /usr/local/kong/declarative
+              name: kong-volume
+      containers:
+        - env:
+            - name: KONG_ADMIN_ACCESS_LOG
+              value: /dev/stdout
+            - name: KONG_ADMIN_ERROR_LOG
+              value: /dev/stderr
+            - name: KONG_ADMIN_LISTEN
+              value: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+            - name: KONG_DATABASE
+              value: "off"
+            - name: KONG_DECLARATIVE_CONFIG
+              value: /usr/local/kong/declarative/kong.yml
+            - name: KONG_PROXY_ACCESS_LOG
+              value: /dev/stdout
+            - name: KONG_PROXY_ERROR_LOG
+              value: /dev/stderr
+          image: umailcr.azurecr.io/kong:latest
+          name: kong
+          ports:
+            - containerPort: 8001
+              hostPort: 8001
+              protocol: TCP
+            - containerPort: 8000
+              hostPort: 80
+              protocol: TCP
+            - containerPort: 8443
+              hostPort: 8443
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /usr/local/kong/declarative
+              name: kong-volume
+      restartPolicy: Always
+      volumes:
+        - name: kong-volume
+          gitRepo:
+            repository: "https://github.com/ProiectIDP/runAndDeployLogic"
+status: {}

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\Users\drago\AppData\Local\Microsoft\WinGet\Packages\Kubernetes.kompose_Microsoft.Winget.Source_8wekyb3d8bbwe\kompose.exe convert
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: app
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: app
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\Users\drago\AppData\Local\Microsoft\WinGet\Packages\Kubernetes.kompose_Microsoft.Winget.Source_8wekyb3d8bbwe\kompose.exe convert
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/proiect-dbbridge: "true"
+        io.kompose.network/proiect-internal: "true"
+        io.kompose.service: app
+    spec:
+      initContainers:
+        - name: move-files
+          image: busybox:latest
+          command: ["/bin/sh", "-c", "mv /app/BusinessLogic/* /app/"]
+          volumeMounts:
+            - mountPath: /app
+              name: business-logic-volume
+      containers:
+        - args:
+            - sh
+            - -c
+            - uvicorn main:app --reload --port=8080 --host=0.0.0.0
+          env:
+            - name: DATABASE_URL
+              value: postgresql://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
+          image: umailcr.azurecr.io/proiect-app:latest
+          name: app
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+              protocol: TCP
+          resources: {}
+          volumeMounts:
+            - mountPath: /app
+              name: business-logic-volume
+      restartPolicy: Always
+      volumes:
+        - name: business-logic-volume
+          gitRepo:
+            repository: "https://github.com/ProiectIDP/BusinessLogic"
+status: {}
