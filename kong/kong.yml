@@ -2,7 +2,7 @@ _format_version: "2.1"
 
 services:
   - name: web
-    url: http://web.svc.cluster.local:8000/login
+    url: http://web.default:8000/login
     routes:
       - name: web-login
         paths:
